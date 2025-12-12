@@ -23,5 +23,23 @@ public class Item {
      * @param player the player using the item
      */
     public void use(Player player) {
+        switch (name.toLowerCase()) {
+            case "flashlight":
+                System.out.println("You turn on the flashlight. Camera battery improves slightly.");
+                player.chargeCamera(10);
+                break;
+
+            case "snack":
+                System.out.println("You eat the snack and regain stamina.");
+                player.restoreStamina(15);
+                break;
+
+            default:
+                System.out.println("You can't use that right now.");
+        }
+    }
+
+    public String getName(){
+        return name;
     }
 }

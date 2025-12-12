@@ -27,12 +27,6 @@ public class Player {
         this.inventory = new ArrayList<>();
     }
 
-    /**
-     * Moves the player to a different room.
-     * @param room the room to move into
-     */
-    public void moveTo(Room room) {
-    }
 
     /**
      * Adds an item to the player's inventory.
@@ -47,11 +41,40 @@ public class Player {
      * @param itemName the name of the item
      */
     public void useItem(String itemName) {
+        for (Item item : inventory){
+            if (item.getName().equalsIgnoreCase(itemName)){
+                item.use(this);
+                return;
+            }
+        }
+        System.out.println("You dont have that item.");
     }
 
     /**
      * Updates player stats as time passes.
      */
     public void updateStats() {
+        stamina -= 1;
+        cameraBattery -= 1;
+
+        if (stamina <= 0) {
+            health -= 1; //exhaustion damage
+            stamina = 0
+        }
     }
+
+    public int getHealth(){
+        return health;
+    }
+
+    public void heal(int amount){
+        health = Math.min(100, stamina + amount);
+    }
+
+    public void restoreStamina(int amount) { stamina = Math.min(100, stamina + amount); }
+
+    public void chargeCamera(int amount) { cameraBattery = Math.min(100, cameraBattery + amount); }
 }
+
+
+

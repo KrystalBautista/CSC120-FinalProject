@@ -6,13 +6,17 @@
 public class Event {
 
     private boolean isTimed;
+    private int triggerTime;
+    private boolean hasTriggered;
 
     /**
      * Constructs an Event.
      * @param isTimed whether the event is time-based
      */
-    public Event(boolean isTimed) {
+    public Event(boolean isTimed, int triggerTime) {
         this.isTimed = isTimed;
+        this.triggerTime = triggerTime;
+        this.hasTriggered = false;
     }
 
     /**
@@ -21,7 +25,12 @@ public class Event {
      * @param room the room where the event occurs
      * @return true if conditions are met, false otherwise
      */
-    public boolean checkTrigger(Player player, Room room) {
+    public boolean checkTrigger(Player player, Room room, int gameTime) {
+        if(hasTriggered) return false;
+
+        if (isTimes && gameTime >= triggerTime){
+            return true;
+        }
         return false;
     }
 
@@ -31,5 +40,8 @@ public class Event {
      * @param room the room where it triggers
      */
     public void execute(Player player, Room room) {
+        hasTriggered = true;
+        System.out.println("\nA loud thud echoes through the hallway. Something is here with you...");
+        player.heal(-10); // small damage
     }
 }

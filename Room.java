@@ -35,12 +35,24 @@ public class Room {
         exits.put(direction, room);
     }
 
+    public Room getExit(String direction){
+        return exits.get(direction);
+    }
+
     /**
      * Places an item in the room.
      * @param item the item to add
      */
     public void addItem(Item item) {
         items.add(item);
+    }
+
+    public Item takeItem(String name){
+        for (Item i : items){
+            items.remove(i);
+            return i;
+        }
+        return null;
     }
 
     /**
@@ -56,5 +68,27 @@ public class Room {
      * @param player the entering player
      */
     public void enter(Player player) {
+        System.out.println("\n== " + description + " ==");
+        describe();
+    }
+
+    public void describe() {
+        if (!items.isEmpty()) {
+            System.out.print("Items here: ");
+            items.forEach(i -> System.out.print(i.getName() + " "));
+            System.out.println();
+        }
+
+        System.out.print("Exits: ");
+        exits.keySet().forEach(d -> System.out.print(d + " "));
+        System.out.println();
+    }
+
+    public void updateEvents(Player player, int gameTime) {
+        for (Event e : events) {
+            if (e.checkTrigger(player, this, gameTime)) {
+                e.execute(player, this);
+            }
+        }
     }
 }

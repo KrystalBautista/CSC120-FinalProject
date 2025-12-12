@@ -2,26 +2,39 @@ classDiagram
 
     class Game {
         <<controller>>
+        -Player player
+        -Room currentRoom
+        -boolean isRunning
+        -int globalTimer
         +start()
+        +loop()
         +processInput(input)
         +updateGameState()
-        +endGame()
+        +endGame(reason)
         %% Status: In progress
     }
 
     class Player {
+        -name : String
         -health : int
         -stamina : int
         -cameraBattery : int
-        +moveTo(room)
+        -inventory : ArrayList<item>
+        +move(direction)
+        +addItem(item)
+        +useItem(name)
         +updateStats()
         %% Status: In progress
     }
 
     class Room {
         -description : String
-        -exits : Map
+        -exits : HashMap<String, Room>
+        -items : ArrayList<item>
+        -events : ArrayList<Event>
         +enter(player)
+        +describe()
+        +takeItem(itemName)
         %% Status: In progress
     }
 
@@ -33,23 +46,24 @@ classDiagram
     }
 
     class Event {
-        -isTimed : bool
-        +checkTrigger(player, room)
-        +execute()
-        %% Status: Stretch goal / Not sure how to do timed events yet
+        -isTimed : boolean
+        -triggerTime : int
+        -hasTriggered : boolean
+        +checkTrigger(player, room, gameTime)
+        +execute(player, room)
+        %% Status: In progress
     }
 
     %% Associations
     Game --> Player : manages >
-    Game --> Room : contains >
+    Game --> Room : controls current >
     Player --> Room : moves >
-    Room --> Item : holds >
+    Room --> Item : contains >
     Player --> Item : inventory >
-    Room --> Event : triggers >
-    Game --> Event : global >
+    Room --> Event : hosts >
+    Game --> Event : updates >
 
     %% Dependencies
-    Player ..> Event : affected by >
     Item ..> Player : modifies >
-    Event ..> Player : checks >
-    Event ..> Room : checks >
+    Event ..> Player : affects >
+    Event ..> Room : tied to >
