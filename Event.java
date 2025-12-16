@@ -26,9 +26,9 @@ public class Event {
      * @return true if conditions are met, false otherwise
      */
     public boolean checkTrigger(Player player, Room room, int gameTime) {
-        if(hasTriggered) return false;
+        if (hasTriggered) return false;
 
-        if (isTimes && gameTime >= triggerTime){
+        if (room.hasEnemy() && gameTime >= triggerTime){
             return true;
         }
         return false;
@@ -41,7 +41,7 @@ public class Event {
      */
     public void execute(Player player, Room room) {
         hasTriggered = true;
-        System.out.println("\nA loud thud echoes through the hallway. Something is here with you...");
-        player.heal(-10); // small damage
+        System.out.println("\nA loud thud echoes through the hallway. A shadow lunges from the darkness!");
+        player.damage(20);
     }
 }

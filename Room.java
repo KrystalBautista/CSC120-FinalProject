@@ -14,6 +14,7 @@ public class Room {
     private HashMap<String, Room> exits;
     private ArrayList<Item> items;
     private ArrayList<Event> events;
+    private HashMap<String,Boolean> blockedExits;
 
     /**
      * Constructs a Room with a description.
@@ -24,6 +25,7 @@ public class Room {
         this.exits = new HashMap<>();
         this.items = new ArrayList<>();
         this.events = new ArrayList<>();
+        this.blockedExits = new HashMap<>();
     }
 
     /**
@@ -33,9 +35,13 @@ public class Room {
      */
     public void addExit(String direction, Room room) {
         exits.put(direction, room);
+        blockedExits.put(direction, false);
     }
 
     public Room getExit(String direction){
+        if(blockedExits.getOrDefault(direction,false)){
+            return null;
+        }
         return exits.get(direction);
     }
 
@@ -49,8 +55,10 @@ public class Room {
 
     public Item takeItem(String name){
         for (Item i : items){
+            if(i.getName().equalsIgnoreCase(name)){
             items.remove(i);
             return i;
+            }
         }
         return null;
     }
@@ -74,7 +82,7 @@ public class Room {
 
     public void describe() {
         if (!items.isEmpty()) {
-            System.out.print("Items here: ");
+            System.out.print("Items: ");
             items.forEach(i -> System.out.print(i.getName() + " "));
             System.out.println();
         }
@@ -84,11 +92,33 @@ public class Room {
         System.out.println();
     }
 
-    public void updateEvents(Player player, int gameTime) {
+    public void updateEvents(Player player, int time) {
         for (Event e : events) {
-            if (e.checkTrigger(player, this, gameTime)) {
+            if (e.checkTrigger(player, this, time)) {
                 e.execute(player, this);
             }
         }
+    }
+
+    public String getDescription(){
+        return description;
+    }
+
+    public void blockExit(String direction){
+        blockedExits.put(direction, true);
+    }
+
+    public void unblockExit(String direction){
+        blockedExits.put(direction, false);
+    }
+
+    private boolean hasEnemy = false;
+
+    public void setEnemy(boolean value){
+        hasEnemy = value;
+    }
+
+    public boolean hasEnemy(){
+        return hasEnemy;
     }
 }

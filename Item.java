@@ -25,17 +25,17 @@ public class Item {
     public void use(Player player) {
         switch (name.toLowerCase()) {
             case "flashlight":
-                System.out.println("You turn on the flashlight. Camera battery improves slightly.");
+                System.out.println("You turn on the flashlight, it makes you feel slightly better.");
                 player.chargeCamera(10);
                 break;
-
-            case "snack":
-                System.out.println("You eat the snack and regain stamina.");
+            
+            case "snack" :
+                System.out.println("You eat the snack and regain some strength.");
                 player.restoreStamina(15);
                 break;
-
-            default:
-                System.out.println("You can't use that right now.");
+            
+            default :
+                System.out.println("Nothing happens.");
         }
     }
 

@@ -27,17 +27,29 @@ public class Game {
      * Begins the game and prepares initial state.
      */
     public void start() {
-        System.out.println("Enter your name: ");
+        System.out.print("Enter your name: ");
+        String name = scanner.nextLine();
         player = new Player(name);
 
         /**
-         * TEMP build basic world
+         * Build world
          */
-        Room foyer = new Room("The foyer is dusty and cold. A broken chandelier sways slightly.");
-        Room hallway = new Room("A dim narrow hallway. Faint creaking can be heard at the end of the hall.");
+        Room foyer = new Room("The foyer is dusty and cold. A broken chandelier sways slightly. You've witnessed the death of your friend at the hands of something sinister that resides in the home. You must escape with the footage.");
+        Room hallway = new Room("A dim narrow hallway. The air feels heavy.");
+        Room exit = new Room("A locked door leading outside. You need a key to escape.");
 
         foyer.addExit("north", hallway);
+        hallway.addExit("south", foyer);
+        hallway.addExit("north", exit);
+        hallway.addExit("north", exit);
+        hallway.blockExit("north");
+
+        foyer.addItem(new Item("flashlight", "A dim but useable flashlight"));
+        hallway.addItem(new Item("snack", "A half eaten energy bar"));
+
+
         hallway.addEvent(new Event(true,5));
+        hallway.addEvent(new Event(true, 10));
 
         currentRoom = foyer;
         currentRoom.enter(player);
@@ -46,16 +58,20 @@ public class Game {
     }
 
     public void loop(){
-        while(isRunning && player.getHealth() > 0){
-            System.out.println("\n> ");
-            String input = scanner.NextLine();
+        while(isRunning){
+            System.out.print("\n>");
+            String input = scanner.nextLine();
             processInput(input);
 
             updateGameState();
             globalTimer++;
-        if (player.getHealth() <= 0){
-            endGame("You succumbed to your injuries...");
-        }
+
+            if (player.getHealth() <= 0){
+            endGame("You collapse as darkness consumes you..");
+            }
+            if (player.getCameraBattery() <= 0){
+                endGame("Your camera dies. The footage is lost. Nobody will believe you.");
+            }
         }
     }
 
@@ -63,42 +79,55 @@ public class Game {
      * Processes a command entered by the player.
      * @param input the command string
      */
-    public void processInput(String input) {
+    private void processInput(String input) {
         String cmd = input.toLowerCase().trim();
 
-        if (cmd.startsWith("go ")) {
+        if (cmd.equals("help")) {
+            showHelp();
+    }   else if (cmd.equals("status")){
+            player.printStatus();
+    }   else if (cmd.startsWith("go ")){
             String direction = cmd.substring(3);
             Room next = currentRoom.getExit(direction);
-
-            if (next != null) {
+            if (next != null){
                 currentRoom = next;
                 currentRoom.enter(player);
-            } else {
-                System.out.println("You can't go that way.");
+
+                if(currentRoom.getDescription().contains("hallway")){
+                    System.out.println("A supernatural presence blocks your path...");
+                }
+
+                if(currentRoom.getDescription().contains("locked")){
+                    if(player.hasItem("key")){
+                        endGame("You unlock the door and escape with the footage. It goes viral.");
+                    }else{
+                        System.out.println("The door is locked. You need a key");
+                    }
+                }
+            }else{
+                System.out.println("You cant go that way.");
             }
-        }
-        else if (cmd.startsWith("take ")) {
+        }else if (cmd.startsWith("take ")){
             String itemName = cmd.substring(5);
             Item item = currentRoom.takeItem(itemName);
-            if (item != null) {
-                System.out.println("You picked up the " + itemName + ".");
+            if (item != null){
                 player.addItem(item);
-            } else {
-                System.out.println("There's no " + itemName + " here.");
+                System.out.println("You picked up the " + itemName + ".");
+            }else{
+                System.out.println("That item isnt here");
             }
-        }
-        else if (cmd.startsWith("use ")) {
-            String itemName = cmd.substring(4);
-            player.useItem(itemName);
-        }
-        else if (cmd.equals("look")) {
+        }else if (cmd.startsWith("use ")){
+            player.useItem(cmd.substring(4));
+        }else if (cmd.equals("look")){
             currentRoom.describe();
-        }
-        else if (cmd.equals("quit")) {
-            endGame("You chose to leave the house early...");
-        }
-        else {
-            System.out.println("Unrecognized command.");
+        }else if (cmd.equals("quit")){
+            endGame("You abandon the investigation.");
+        }else if(cmd.equals("fight")){
+            if(currentRoom.getDescription().contains("hallway")){
+                player.fightEnemy(currentRoom);
+            }else{
+            System.out.println("There is nothing to fight here.");
+            }
         }
     }
 
@@ -107,8 +136,21 @@ public class Game {
      */
     public void updateGameState() {
         player.updateStats();
-
         currentRoom.updateEvents(player, globalTimer);
+    }
+
+
+    private void showHelp(){
+        System.out.println("""
+                Commands:
+                GO <direction>
+                LOOK
+                TAKE <item>
+                USE <item>
+                STATUS
+                HELP
+                QUIT
+                """);
     }
 
     /**
